@@ -1,33 +1,33 @@
-var express = require("express");
-var mongojs = require("mongojs");
-var mongoose = require("mongoose");
+var express = require('express');
+var bodyParser = require('body-parser');
 var logger = require("morgan");
-var bodyParser = require("body-parser");
+var mongoose = require('mongoose');
 
-// Require request and cheerio. This makes the scraping possible
-var request = require("request");
-var cheerio = require("cheerio");
+// scraping specific tools
+var axios = require('axios');
+var cheerio = require('cheerio');
 
-// Initialize Express
-var app = express();
-
-// Use morgan logger for logging requests
-app.use(logger("dev"));
-// Use body-parser for handling form submissions
-app.use(bodyParser.urlencoded({ extended: true }));
-// Serve static content for the app from the "public" directory in the application directory.
-app.use(express.static("public"));
-
-// Connect to the Mongo DB
-mongoose.connect("mongodb://localhost/mongoHeadlines");
-
-// Routes
-require("")(app);
-require("")(app);
+// require all models
+var db = require("./models");
 
 var PORT = process.env.PORT || 3000;
 
-// Start the server
+// initialize express
+var app = express();
+
+// configure middleware
+app.use(logger('dev'));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static('public'));
+
+mongoose.connect("mongodb://localhost/mongoHeadlines");
+
+// a GET route for scraping the a website
+app.get('/scrape', function (req, res) {
+    // eventual code for scrape
+});
+
+// start the server
 app.listen(PORT, function() {
-    console.log("App running on port " + PORT + "!");
+    console.log("App running on port " + PORT);
 });
