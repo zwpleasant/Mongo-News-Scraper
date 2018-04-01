@@ -22,10 +22,40 @@ app.use(express.static('public'));
 
 mongoose.connect("mongodb://localhost/mongoHeadlines");
 
-// a GET route for scraping the a website
-app.get('/scrape', function (req, res) {
-    // eventual code for scrape
-});
+// a GET route for scraping NPR News headlines
+app.get("/scrape", function(req, res) {
+    // First, we grab the body of the html with request
+    axios.get("https://www.npr.org/sections/news/").then(function(response) {
+      // Then, we load that into cheerio and save it to $ for a shorthand selector
+      var $ = cheerio.load(response.data);
+  
+      // Now, we grab every h2 within an article tag, and do the following:
+      $("h2.title").each(function(i, element) {
+        // Save an empty result object
+        var result = {};
+  
+        // Add the text and href of every link, and save them as properties of the result object
+        result.title = $(this).text();
+        result.link = $(this).children().attr("href");
+        result.summary = $(this).next('.teaser').children().text();
+  
+        // Create a new Article using the `result` object built from scraping
+        db.Article.create(result)
+          .then(function(dbArticle) {
+            // View the added result in the console
+            console.log(dbArticle);
+          })
+          .catch(function(err) {
+            // If an error occurred, send it to the client
+            return res.json(err);
+          });
+      });
+  
+      // If we were able to successfully scrape and save an Article, send a message to the client
+      res.send("Scrape Complete");
+    });
+  });
+
 
 // start the server
 app.listen(PORT, function() {
